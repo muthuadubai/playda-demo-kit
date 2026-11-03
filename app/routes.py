@@ -35,6 +35,8 @@ def _venue_ids(data):
 
 @demo_bp.before_request
 def require_auth():
+    if request.method == "OPTIONS":
+        return None  # let flask-cors answer the preflight
     if not _authorized():
         return jsonify({"success": False, "error": "unauthorized"}), 401
 

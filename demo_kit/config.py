@@ -52,4 +52,10 @@ DEMO_MANAGER_NAME = os.environ.get("DEMO_MANAGER_NAME", "Demo Manager")
 DEMO_JOB_TOKEN = os.environ.get("DEMO_JOB_TOKEN", "")
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "")
 
+# Comma-separated browser origins allowed to call the API (admin portals).
+# Default "*" keeps local/dev frictionless — set explicit origins in deploys.
+ALLOWED_ORIGINS = [
+    o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "*").split(",") if o.strip()
+]
+
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
