@@ -69,6 +69,17 @@ def refresh_crm():
     return jsonify({"success": True, "report": report})
 
 
+@demo_bp.route("/api/demo/venues", methods=["GET"])
+def venues():
+    """Prod venue list for the refresh-scope picker — sourced from the ops
+    DB so the picker shows ALL venues regardless of what's already demoed."""
+    try:
+        out = pipeline.list_source_venues()
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+    return jsonify({"success": True, "venues": out})
+
+
 @demo_bp.route("/api/demo/status", methods=["GET"])
 def status():
     return jsonify({"success": True, "status": pipeline.status()})

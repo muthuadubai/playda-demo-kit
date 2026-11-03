@@ -66,6 +66,19 @@ def refresh_crm(venue_ids=None):
         demo_client.close()
 
 
+def list_source_venues():
+    src = _source_client()
+    try:
+        return [
+            {"_id": str(v["_id"]), "name": v.get("name")}
+            for v in src[config.SOURCE_DB_NAME]["venue"]
+            .find({}, {"name": 1})
+            .sort("name", 1)
+        ]
+    finally:
+        src.close()
+
+
 def status():
     demo_client = _demo_client()
     try:
