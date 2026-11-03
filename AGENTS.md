@@ -47,6 +47,13 @@ implementation plan".
   player/staff PII — masked via recursive person-tree walk + recipients
   walk. When adding collections, audit nested structures, not just top
   level.
+- **CRM additions**: `country`, `insights_rulesets` (global),
+  `inbound_autoreplies`, `player_blocks`, `tenant_settings` (forced
+  `live_sends_enabled=false` via spec `post`). `inbound_unknowns` skipped —
+  real WA messages with no tenant linkage. `campaign_sends.to_address`
+  masked per player; `provider_message_id` rewritten to fake `SM…` SIDs
+  (real ones resolve prod messages in the Twilio console — demo runs prod
+  creds). `crm payments` is empty in prod — 0 docs is expected, not a bug.
 - **Refresh = full rebuild**: every specced collection is wiped and recopied
   — point-in-time, no change-stream tailing.
 - **Notification posture**: demo backend runs prod Twilio/email creds on

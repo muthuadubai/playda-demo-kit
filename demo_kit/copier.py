@@ -251,14 +251,28 @@ CRM_SPECS = [
     # Player-scoped projections.
     Spec("player_consent", kind="player", field="player_id"),
     Spec("channel_unreachability", kind="player", field="player_id"),
+    Spec("player_blocks", kind="venue_or_player"),
+    Spec("inbound_autoreplies", kind="player", field="player_id"),
+    # Synced global reference — same names as ops.
+    Spec("country"),
+    Spec("insights_rulesets"),
+    # tenant_settings carries live_sends_enabled — force off in demo.
+    Spec(
+        "tenant_settings",
+        kind="tenant",
+        post=lambda doc, scope: {**doc, "live_sends_enabled": False},
+    ),
     # Deliberately skipped:
     #   users / venue_access      — real staff identities (demo users only)
     #   platform_settings_history — audit noise, may carry actor emails
     #   _crm_sync_state           — stale resume token breaks demo worker
+    #   inbound_unknowns          — real WA messages (phone/name/free-text
+    #                               body) with no tenant link to scope by
     Spec("users", kind="skip"),
     Spec("venue_access", kind="skip"),
     Spec("platform_settings_history", kind="skip"),
     Spec("_crm_sync_state", kind="skip"),
+    Spec("inbound_unknowns", kind="skip"),
 ]
 
 
