@@ -28,8 +28,45 @@ def masked_email(oid, prefix="player"):
     return f"{prefix}{seq(oid, 1_000_000)}@playda-demo.invalid"
 
 
+# Culturally-coherent name pools — the bucket is chosen first, then
+# first+last inside it, so results never mix ethnicities (no "Ahmed Wilson").
+# Mix mirrors the UAE player demographic.
+_NAME_POOLS = (
+    (  # Arab / Emirati
+        ("Ahmed", "Fatima", "Khalid", "Mariam", "Omar", "Aisha", "Rashid",
+         "Noor", "Saeed", "Hessa", "Sultan", "Latifa", "Hamdan", "Shamsa"),
+        ("Al Mansouri", "Al Zaabi", "Al Falasi", "Al Nuaimi", "Al Shamsi",
+         "Al Qassimi", "Al Suwaidi", "Al Mazrouei", "Al Ketbi", "Al Hammadi"),
+    ),
+    (  # South Asian
+        ("Arjun", "Priya", "Ravi", "Sneha", "Vikram", "Ananya", "Rahul",
+         "Divya", "Kiran", "Meera", "Aditya", "Pooja", "Sanjay", "Lakshmi"),
+        ("Nair", "Sharma", "Patel", "Kumar", "Menon", "Reddy", "Iyer",
+         "Naidu", "Pillai", "Verma", "Gupta", "Desai"),
+    ),
+    (  # Filipino
+        ("Jose", "Maria", "Angel", "Paolo", "Grace", "Miguel", "Rosa",
+         "Carlo", "Liza", "Marco", "Jenny", "Ramon"),
+        ("Santos", "Reyes", "Cruz", "Garcia", "Mendoza", "Torres", "Ramos",
+         "Aquino", "Navarro", "Salazar", "Mercado", "Aguilar"),
+    ),
+    (  # Western expat
+        ("James", "Sarah", "Emma", "Daniel", "Olivia", "Tom", "Laura",
+         "Mark", "Sophie", "Jack", "Chloe", "Ryan"),
+        ("Smith", "Brown", "Wilson", "Taylor", "Miller", "Davies", "Evans",
+         "Thomas", "Johnson", "Walker", "Wright", "Clarke"),
+    ),
+)
+
+
 def masked_name(oid, prefix="Player"):
-    return f"{prefix} {seq(oid, 100_000)}"
+    # `prefix` retained for call-site compatibility; all pools now produce
+    # real-looking person names (staff names look better that way too).
+    firsts, lasts = _NAME_POOLS[seq(f"{oid}:pool", len(_NAME_POOLS))]
+    return (
+        f"{firsts[seq(f'{oid}:fn', len(firsts))]} "
+        f"{lasts[seq(f'{oid}:ln', len(lasts))]}"
+    )
 
 
 def is_whitelisted(doc):
