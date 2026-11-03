@@ -8,6 +8,7 @@ from demo_kit.maskers import _ids
 # real photo. Cleared on whitelisted docs too.
 _DEVICE_FIELDS = (
     "mpin",
+    "mpin_salt",
     "device_id",
     "last_login_device",
     "fcm_token",

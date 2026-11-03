@@ -30,8 +30,23 @@ implementation plan".
   Both profiles must share the same salt or cross-DB identities diverge.
 - **Allowlist, not denylist**: collections not in SPECS are skipped —
   new PII-carrying collections fail closed, not open.
-- **Skipped by design**: ops `notifications` (free text may embed names),
-  CRM `users`/`venue_access`/`platform_settings_history`/`_crm_sync_state`.
+- **Skipped by design**: ops `notifications`, `ai_insights_*` (free text may
+  embed names), CRM `users`/`venue_access`/`platform_settings_history`/
+  `_crm_sync_state`.
+- **Ops collection names are singular**: `court`, `court_blocks`,
+  `pricing_template`, `discount_template`, `promotion` (camelCase
+  `venueId`, `isGlobal` flag), `country`, `platform_refund_policy`,
+  `terms_acceptances`, `player_due_balances`, `late_cancellation_events`,
+  `cancel_booking_tokens`. Verified against live prod — don't rename back
+  to plural guesses.
+- **Free-text residual**: `bookings.notes` gets digits/emails scrubbed but
+  first names in prose survive (unreliable to detect). Consider clearing
+  notes entirely if stricter masking is required.
+- **Nested person fields**: `matches.slots.teamN[]`, `player_blocks`,
+  `venue_notification_settings.channels.*.recipients[]` all carry
+  player/staff PII — masked via recursive person-tree walk + recipients
+  walk. When adding collections, audit nested structures, not just top
+  level.
 - **Refresh = full rebuild**: every specced collection is wiped and recopied
   — point-in-time, no change-stream tailing.
 - **Notification posture**: demo backend runs prod Twilio/email creds on

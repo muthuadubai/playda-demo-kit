@@ -11,6 +11,11 @@ _BY_COLLECTION = {
     "bookings": embedded.mask_booking,
     "check_ins": embedded.mask_check_in,
     "payments": embedded.mask_payment,
+    "terms_acceptances": embedded.mask_terms_acceptance,
+    "promotion": embedded.mask_promotion,
+    "player_blocks": embedded.mask_player_block,
+    "matches": embedded.mask_match,
+    "venue_notification_settings": embedded.mask_notification_settings,
     "campaign_sends": campaign_sends.mask_send,
 }
 

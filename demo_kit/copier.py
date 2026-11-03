@@ -86,6 +86,13 @@ def _query(spec, scope):
                 {"player_id": {"$in": list(scope.player_ids)}},
             ]
         }
+    if kind == "venue_or_global":
+        return {
+            "$or": [
+                {spec.field: {"$in": _any_venue(scope)}},
+                {"isGlobal": True},
+            ]
+        }
     if kind == "raw":
         return scope.queries.get(spec.name)
     raise ValueError(f"Unknown spec kind {kind!r} for {spec.name}")
@@ -115,18 +122,21 @@ def _rewire_crm_player(doc, scope):
 # ---------------------------------------------------------------------------
 OPS_SPECS = [
     # Global reference data — no PII, needed for the app to function.
-    Spec("countries"),
+    Spec("country"),
     Spec("terms_versions"),
     Spec("insights_rulesets"),
-    Spec("platform_refund_policies"),
+    Spec("platform_refund_policy"),
     # Venue-rooted collections.
     Spec("venue", kind="venue", field="_id"),
-    Spec("courts", kind="venue"),
-    Spec("pricing_templates", kind="venue"),
-    Spec("discount_templates", kind="venue"),
+    Spec("court", kind="venue"),
+    Spec("court_blocks", kind="venue"),
+    Spec("pricing_template", kind="venue"),
+    Spec("discount_template", kind="venue"),
     Spec("matches", kind="venue_or_player"),
-    Spec("promotions", kind="venue"),
+    # promotion.venueId is camelCase; isGlobal promos belong to every venue.
+    Spec("promotion", kind="venue_or_global", field="venueId"),
     Spec("promo_codes", kind="venue"),
+    Spec("promo_redemptions", kind="venue"),
     Spec("venue_notification_settings", kind="venue"),
     Spec("venue_financial_settings", kind="venue"),
     Spec("venue_peak_hours", kind="venue"),
@@ -140,16 +150,21 @@ OPS_SPECS = [
     Spec("bookings", kind="raw"),
     Spec("check_ins", kind="raw"),
     Spec("payments", kind="booking", field="booking_id"),
+    Spec("cancel_booking_tokens", kind="booking", field="booking_id"),
     Spec("players", kind="player", field="_id"),
     Spec("consent_events", kind="player"),
-    Spec("terms_acceptance", kind="player", field="player_id"),
+    Spec("terms_acceptances", kind="player", field="player_id"),
     Spec("player_blocks", kind="venue_or_player"),
     Spec("player_due_ledger", kind="venue_or_player"),
-    Spec("late_cancellation_usage", kind="venue_or_player"),
+    Spec("player_due_balances", kind="venue_or_player"),
+    Spec("late_cancellation_events", kind="venue_or_player"),
     Spec("venue_access", kind="venue"),
     Spec("users", kind="user", field="_id"),
     # notifications skipped: free-text bodies can embed real names.
+    # ai_insights_* skipped: cache may hold generated text with names.
     Spec("notifications", kind="skip"),
+    Spec("ai_insights_cache", kind="skip"),
+    Spec("ai_insights_usage", kind="skip"),
 ]
 
 
