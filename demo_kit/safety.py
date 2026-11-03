@@ -28,11 +28,17 @@ def assert_demo_target(db_name):
 
 
 def assert_confirm_target(expected_db_name):
-    if config.CONFIRM_TARGET != expected_db_name:
+    """CONFIRM_TARGET is a comma-separated allowlist of demo db names —
+    the service refreshes multiple targets, so each run proves intent by
+    being named in the list."""
+    allowed = {
+        t.strip() for t in config.CONFIRM_TARGET.split(",") if t.strip()
+    }
+    if expected_db_name not in allowed:
         raise SafetyError(
-            f"CONFIRM_TARGET is {config.CONFIRM_TARGET!r}, expected "
-            f"{expected_db_name!r}. Set CONFIRM_TARGET in the environment "
-            "to prove the target is intended."
+            f"CONFIRM_TARGET {sorted(allowed)} does not include "
+            f"{expected_db_name!r}. Add it to CONFIRM_TARGET to prove the "
+            "target is intended."
         )
 
 
