@@ -3,8 +3,12 @@
   1. Demo accounts — admin / owner / manager users + venue_access rows so
      the demo portal is loggable into out of the box.
   2. Notification kill-flags — every venue_notification_settings channels
-     `enabled` flag forced false, so even a stray job can't route a real
-     send through copied settings.
+     `enabled` flag forced false. The demo backend runs with PROD Twilio/
+     email credentials (deliberate — the presenter can re-enable channel
+     toggles per venue in the demo portal to demo notifications). The
+     actual safety boundary is the masked data: masked mobiles are
+     unroutable and masked emails undeliverable, so only whitelisted demo
+     attendees can ever receive a real message.
   3. _demo_meta — audit record of the refresh (scope, counts, salt hash).
 """
 

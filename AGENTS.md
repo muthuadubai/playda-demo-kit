@@ -34,6 +34,12 @@ implementation plan".
   CRM `users`/`venue_access`/`platform_settings_history`/`_crm_sync_state`.
 - **Refresh = full rebuild**: every specced collection is wiped and recopied
   — point-in-time, no change-stream tailing.
+- **Notification posture**: demo backend runs prod Twilio/email creds on
+  purpose — masked contacts are the safety boundary (`+1555…` unroutable,
+  `.invalid` undeliverable); only whitelisted attendees are reachable.
+  Copied `venue_notification_settings` are forced off by post-fixups so
+  demos default to silent; presenters re-enable toggles in the demo portal
+  to show live notifications to whitelisted numbers.
 
 ## Verification
 
