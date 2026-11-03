@@ -60,7 +60,12 @@ def _insert_demo_accounts(demo_db, scope):
     specs = [
         (config.DEMO_ADMIN_EMAIL, config.DEMO_ADMIN_NAME, "admin", None),
         (config.DEMO_OWNER_EMAIL, config.DEMO_OWNER_NAME, "owner", "owner"),
-        (config.DEMO_MANAGER_EMAIL, config.DEMO_MANAGER_NAME, "owner", "manager"),
+        (
+            config.DEMO_MANAGER_EMAIL,
+            config.DEMO_MANAGER_NAME,
+            "manager",
+            "manager",
+        ),
     ]
     for email, name, role, access_level in specs:
         if not email:
