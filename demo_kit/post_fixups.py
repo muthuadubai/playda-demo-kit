@@ -113,7 +113,7 @@ def _disable_notifications(demo_db):
     return patched
 
 
-def _write_meta(demo_db, scope, counts):
+def write_meta(demo_db, scope, counts):
     meta = {
         "_id": "refresh",
         "seeded_at": datetime.datetime.now(datetime.timezone.utc),
@@ -133,5 +133,5 @@ def _write_meta(demo_db, scope, counts):
 def apply(demo_db, scope, counts):
     demo_accounts = _insert_demo_accounts(demo_db, scope)
     disabled = _disable_notifications(demo_db)
-    _write_meta(demo_db, scope, counts)
+    write_meta(demo_db, scope, counts)
     return {"demo_accounts": demo_accounts, "notification_docs_disabled": disabled}

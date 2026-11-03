@@ -55,6 +55,7 @@ def refresh_crm(venue_ids=None):
         demo_db = demo_client[config.DEMO_CRM_DB_NAME]
         scope = copier.resolve_crm_scope(source_db, venue_ids)
         counts = copier.copy_db(source_db, demo_db, copier.CRM_SPECS, scope)
+        post_fixups.write_meta(demo_db, scope, counts)
         return {
             "target": config.DEMO_CRM_DB_NAME,
             "scope": "full" if scope.full else [str(v) for v in scope.venue_oids],
