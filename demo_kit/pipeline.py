@@ -4,7 +4,7 @@ import logging
 
 from pymongo import MongoClient
 
-from demo_kit import config, copier, post_fixups, safety
+from demo_kit import config, copier, images, post_fixups, safety
 
 logger = logging.getLogger("demo_kit.pipeline")
 
@@ -23,6 +23,7 @@ def refresh_ops(venue_ids=None, lookback_days=None, pair_crm=False):
     """prod `playda` → `playda_demo` (masked)."""
     safety.guard(config.DEMO_OPS_DB_NAME)
     src_client, demo_client = _source_client(), _demo_client()
+    images.reset_stats()
     try:
         source_db = src_client[config.SOURCE_DB_NAME]
         demo_db = demo_client[config.DEMO_OPS_DB_NAME]
@@ -34,6 +35,7 @@ def refresh_ops(venue_ids=None, lookback_days=None, pair_crm=False):
             "scope": "full" if scope.full else [str(v) for v in scope.venue_oids],
             "lookback_days": lookback_days,
             "counts": counts,
+            "images_copied": images.copied_count(),
             **fixups,
         }
         if pair_crm:
@@ -50,6 +52,7 @@ def refresh_crm(venue_ids=None):
     if not config.SOURCE_CRM_MONGO_URI:
         raise safety.SafetyError("SOURCE_CRM_MONGO_URI is not set")
     src_client, demo_client = MongoClient(config.SOURCE_CRM_MONGO_URI), _demo_client()
+    images.reset_stats()
     try:
         source_db = src_client[config.SOURCE_CRM_DB_NAME]
         demo_db = demo_client[config.DEMO_CRM_DB_NAME]
@@ -60,6 +63,7 @@ def refresh_crm(venue_ids=None):
             "target": config.DEMO_CRM_DB_NAME,
             "scope": "full" if scope.full else [str(v) for v in scope.venue_oids],
             "counts": counts,
+            "images_copied": images.copied_count(),
         }
     finally:
         src_client.close()

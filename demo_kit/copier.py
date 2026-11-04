@@ -24,7 +24,7 @@ from typing import Callable, Optional
 
 from bson import ObjectId
 
-from demo_kit import maskers
+from demo_kit import images, maskers
 
 logger = logging.getLogger("demo_kit.copier")
 
@@ -335,6 +335,7 @@ def copy_db(source_db, target_db, specs, scope):
                 doc = maskers.apply(spec.name, doc)
             if spec.post:
                 doc = spec.post(doc, scope)
+            doc = images.rewrite_doc_images(spec.name, doc)
             batch.append(doc)
             if len(batch) >= BATCH_SIZE:
                 target_coll.insert_many(batch, ordered=False)

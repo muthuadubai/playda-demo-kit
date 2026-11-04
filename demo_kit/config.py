@@ -28,6 +28,13 @@ CONFIRM_TARGET = os.environ.get("CONFIRM_TARGET", "")
 # agree across playda_demo and playda_crm_demo. Rotate to re-randomize.
 DEMO_SALT = os.environ.get("DEMO_SALT", "playda-demo")
 
+# GCS image copy — docs store full public URLs into the prod bucket; the
+# refresh server-side-copies referenced blobs into the demo bucket and
+# rewrites the stored URLs so demo uploads/deletes can never reach prod.
+# Empty GCS_DEMO_BUCKET disables rewriting (URLs pass through untouched).
+GCS_SOURCE_BUCKET = os.environ.get("GCS_SOURCE_BUCKET", "playda-images-prod")
+GCS_DEMO_BUCKET = os.environ.get("GCS_DEMO_BUCKET", "")
+
 
 def _csv(name):
     return {v.strip() for v in os.environ.get(name, "").split(",") if v.strip()}

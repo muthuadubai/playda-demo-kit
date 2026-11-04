@@ -17,6 +17,7 @@ _DEVICE_FIELDS = (
     "device_token",
     "avatar",
     "profile_picture",
+    "profile_image",
     "photo_url",
 )
 

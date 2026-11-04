@@ -17,6 +17,8 @@ implementation plan".
   copy unmasked (aggregate/reference data only).
 - `demo_kit/post_fixups.py` — demo accounts + venue_access, notification
   kill-flags, `_demo_meta` audit doc
+- `demo_kit/images.py` — GCS blob copy + URL rewrite (`GCS_SOURCE_BUCKET`
+  → `GCS_DEMO_BUCKET`) run per doc inside `copier.copy_db`
 - `demo_kit/pipeline.py` — `refresh_ops` / `refresh_crm` / `status`
 - `demo_kit/cli.py` — `python -m demo_kit refresh|refresh-crm|status`
 - `app/` + `run.py` — thin Flask API (`POST /api/demo/refresh`,
@@ -56,6 +58,17 @@ implementation plan".
   creds). `crm payments` is empty in prod — 0 docs is expected, not a bug.
 - **Refresh = full rebuild**: every specced collection is wiped and recopied
   — point-in-time, no change-stream tailing.
+- **Images live outside Mongo**: docs store full public GCS URLs. Copied
+  `venue.pictures` / `promotion.posterImage|thumbnailImage` blobs are
+  server-side copied `GCS_SOURCE_BUCKET` → `GCS_DEMO_BUCKET` and URLs
+  rewritten — demo-be uploads/deletes can never reach prod objects.
+  `players.profile_image` is PII: cleared by `_DEVICE_FIELDS`, never copied.
+  playda-be-demo runs `GCS_BUCKET_NAME=playda-images-demo`; its blob-name
+  extraction also fails closed on any residual prod URL.
+- **Realistic name masking**: `maskers._ids.masked_name` picks a
+  culturally-coherent first+last from per-ethnicity pools (bucket chosen
+  deterministically per _id) — no cross-ethnicity mixes, same name for the
+  same player in both DBs.
 - **Notification posture**: demo backend runs prod Twilio/email creds on
   purpose — masked contacts are the safety boundary (`+1555…` unroutable,
   `.invalid` undeliverable); only whitelisted attendees are reachable.
