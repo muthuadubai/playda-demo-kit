@@ -33,6 +33,25 @@ def _venue_ids(data):
     return [v for v in (ids or []) if v] or None
 
 
+def _scope_or_400(data):
+    """API callers must scope explicitly: venue_ids, or `full: true` for a
+    complete copy. An omitted scope is a bug, not a full-refresh request —
+    the admin UI now sends explicit ids only."""
+    ids = _venue_ids(data)
+    if not ids and not data.get("full"):
+        return None, (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "venue_ids required — pass venue_ids, or "
+                    "'full': true for a complete copy",
+                }
+            ),
+            400,
+        )
+    return ids, None
+
+
 @demo_bp.before_request
 def require_auth():
     if request.method == "OPTIONS":
@@ -44,9 +63,12 @@ def require_auth():
 @demo_bp.route("/api/demo/refresh", methods=["POST"])
 def refresh():
     data = request.get_json(force=True, silent=True) or {}
+    venue_ids, err = _scope_or_400(data)
+    if err:
+        return err
     try:
         report = pipeline.refresh_ops(
-            venue_ids=_venue_ids(data),
+            venue_ids=venue_ids,
             lookback_days=data.get("lookback_days"),
             pair_crm=bool(data.get("pair_crm")),
         )
@@ -60,8 +82,11 @@ def refresh():
 @demo_bp.route("/api/demo/refresh-crm", methods=["POST"])
 def refresh_crm():
     data = request.get_json(force=True, silent=True) or {}
+    venue_ids, err = _scope_or_400(data)
+    if err:
+        return err
     try:
-        report = pipeline.refresh_crm(venue_ids=_venue_ids(data))
+        report = pipeline.refresh_crm(venue_ids=venue_ids)
     except safety.SafetyError as exc:
         return jsonify({"success": False, "error": str(exc)}), 400
     except Exception as exc:

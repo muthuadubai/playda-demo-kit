@@ -20,6 +20,10 @@ _BY_COLLECTION = {
 }
 
 
-def apply(collection_name, doc):
+def apply(collection_name, doc, taken_names=None):
     masker = _BY_COLLECTION.get(collection_name)
-    return masker(doc) if masker else doc
+    if not masker:
+        return doc
+    if collection_name == "venue":
+        return masker(doc, taken_names)
+    return masker(doc)

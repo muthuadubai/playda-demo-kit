@@ -69,6 +69,12 @@ implementation plan".
   culturally-coherent first+last from per-ethnicity pools (bucket chosen
   deterministically per _id) — no cross-ethnicity mixes, same name for the
   same player in both DBs.
+- **Venue names are acronym-masked**: `Le Padel Club` → `LPC Club`
+  (initials + fixed " Club" suffix). Collisions get ` Club 2`/` 3` by
+  `_id`-ordered copy — deterministic across refreshes and identical in the
+  ops/crm pairs. Single-token/non-alpha names fall back to `Demo Arena
+  {n}`. Names aren't denormalized into other collections (`venue_id`
+  only), so `venue.name` is the only field needing this.
 - **Notification posture**: demo backend runs prod Twilio/email creds on
   purpose — masked contacts are the safety boundary (`+1555…` unroutable,
   `.invalid` undeliverable); only whitelisted attendees are reachable.

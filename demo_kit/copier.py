@@ -330,9 +330,14 @@ def copy_db(source_db, target_db, specs, scope):
             counts[spec.name] = 0
             continue
         batch, inserted = [], 0
-        for doc in source_db[spec.name].find(query):
+        # _id-ordered reads keep the copy deterministic — venue name
+        # collision suffixes resolve identically on every refresh.
+        taken_names = set() if spec.name == "venue" else None
+        for doc in source_db[spec.name].find(query).sort("_id", 1):
             if spec.mask:
-                doc = maskers.apply(spec.name, doc)
+                doc = maskers.apply(
+                    spec.name, doc, taken_names=taken_names
+                )
             if spec.post:
                 doc = spec.post(doc, scope)
             doc = images.rewrite_doc_images(spec.name, doc)
