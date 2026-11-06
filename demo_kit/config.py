@@ -40,6 +40,10 @@ def _csv(name):
     return {v.strip() for v in os.environ.get(name, "").split(",") if v.strip()}
 
 
+def _csv_list(name):
+    return [v.strip() for v in os.environ.get(name, "").split(",") if v.strip()]
+
+
 # Whitelist — players/users whose real contact data is preserved so demo
 # attendees can log in (email OTP / mobile OTP reach real inboxes/devices).
 # Prefer E.164 for mobiles.
@@ -47,12 +51,14 @@ DEMO_WHITELIST_MOBILES = _csv("DEMO_WHITELIST_MOBILES")
 DEMO_WHITELIST_EMAILS = {e.lower() for e in _csv("DEMO_WHITELIST_EMAILS")}
 
 # Demo accounts inserted by post_fixups (emails should be whitelisted too).
-DEMO_ADMIN_EMAIL = os.environ.get("DEMO_ADMIN_EMAIL", "")
-DEMO_ADMIN_NAME = os.environ.get("DEMO_ADMIN_NAME", "Demo Admin")
-DEMO_OWNER_EMAIL = os.environ.get("DEMO_OWNER_EMAIL", "")
-DEMO_OWNER_NAME = os.environ.get("DEMO_OWNER_NAME", "Demo Owner")
-DEMO_MANAGER_EMAIL = os.environ.get("DEMO_MANAGER_EMAIL", "")
-DEMO_MANAGER_NAME = os.environ.get("DEMO_MANAGER_NAME", "Demo Manager")
+# Emails AND names accept comma-separated lists — one account per email;
+# names pair by position and extras fall back to the email local part.
+DEMO_ADMIN_EMAILS = [e.lower() for e in _csv_list("DEMO_ADMIN_EMAIL")]
+DEMO_ADMIN_NAMES = _csv_list("DEMO_ADMIN_NAME") or ["Demo Admin"]
+DEMO_OWNER_EMAILS = [e.lower() for e in _csv_list("DEMO_OWNER_EMAIL")]
+DEMO_OWNER_NAMES = _csv_list("DEMO_OWNER_NAME") or ["Demo Owner"]
+DEMO_MANAGER_EMAILS = [e.lower() for e in _csv_list("DEMO_MANAGER_EMAIL")]
+DEMO_MANAGER_NAMES = _csv_list("DEMO_MANAGER_NAME") or ["Demo Manager"]
 
 # API auth — /api/demo/* accepts either the job token or an admin-role JWT
 # issued by playda-be (same shared secret as crm-be).

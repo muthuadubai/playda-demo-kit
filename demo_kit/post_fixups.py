@@ -61,16 +61,36 @@ def _insert_demo_accounts(demo_db, scope):
         else [v["_id"] for v in demo_db["venue"].find({}, {"_id": 1})]
     )
     inserted = []
-    specs = [
-        (config.DEMO_ADMIN_EMAIL, config.DEMO_ADMIN_NAME, "admin", None),
-        (config.DEMO_OWNER_EMAIL, config.DEMO_OWNER_NAME, "owner", "owner"),
-        (
-            config.DEMO_MANAGER_EMAIL,
-            config.DEMO_MANAGER_NAME,
-            "manager",
-            "manager",
-        ),
-    ]
+
+    def _account_specs(emails, names, role, access_level):
+        out = []
+        for i, email in enumerate(emails):
+            name = names[i] if i < len(names) else None
+            if not name:
+                # extra emails without a parallel name get a display name
+                # from the local part so accounts stay distinguishable
+                name = (
+                    email.split("@")[0]
+                    .replace(".", " ")
+                    .replace("_", " ")
+                    .title()
+                )
+            out.append((email, name, role, access_level))
+        return out
+
+    specs = []
+    specs += _account_specs(
+        config.DEMO_ADMIN_EMAILS, config.DEMO_ADMIN_NAMES, "admin", None
+    )
+    specs += _account_specs(
+        config.DEMO_OWNER_EMAILS, config.DEMO_OWNER_NAMES, "owner", "owner"
+    )
+    specs += _account_specs(
+        config.DEMO_MANAGER_EMAILS,
+        config.DEMO_MANAGER_NAMES,
+        "manager",
+        "manager",
+    )
     for email, name, role, access_level in specs:
         if not email:
             continue
